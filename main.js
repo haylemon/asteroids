@@ -22,11 +22,23 @@ const shipThrust = 5; // acceleration of ship in pixels per second per second
 const turnSpeed = 360; // in degrees per second
 const showBounding = false; // show or hide collision bounding
 const showCenterDot = false;
+const soundOn = false;
+const musicOn = false;
 const textFadeTime = 2.5 // text fade time in seconds
 const textSize = 35; // text font height in pixels
 
 var canv = document.getElementById('game-canvas');
 var ctx = canv.getContext('2d');
+
+// set up sound effects
+var fxLaser = new Sound('sounds/laser.m4a', 5, 0.6);
+var fxHit = new Sound('sounds/hit.m4a', 5, 0.7);
+var fxExplode = new Sound('sounds/explode.m4a', 3, 0.8);
+var fxThrust = new Sound('sounds/thrust.m4a', 2, 0.3);
+
+// set up the music
+var music = new Music('sounds/music-low.m4a', 'sounds/music-high.m4a');
+var asteroidsLeft, asteroidsTotal;
 
 // set up the game parameters
 var level, lives, asteroids, score, scoreHigh, ship, text, textAlpha;
@@ -41,6 +53,8 @@ document.addEventListener('keyup', keyUp);
 setInterval(update, 1000 / FPS);
 
 function createAsteroidBelt() {
+    asteroidsTotal = (asteroidNum + level) * 7;
+    asteroidsLeft = asteroidsTotal;
     asteroids = [];
     var x, y;
     for (var i = 0; i < asteroidNum + level; i++) {
@@ -78,6 +92,11 @@ function destroyAsteroid(index) {
 
     // destroy the asteroid
     asteroids.splice(index, 1);
+    fxHit.play();
+
+    // calculate the ratio of remaining asteroids to determine the music tempo
+    asteroidsLeft--;
+    music.setAsteroidRatio(asteroidsLeft == 0 ? 1 : asteroidsLeft / asteroidsTotal);
 
     // new level when no more asteroids 
     if (asteroids.length == 0) {
@@ -112,6 +131,7 @@ function drawShip(x, y, a, color = 'white') {
 
 function explodeShip() {
    ship.explodeTime = Math.ceil(shipExplodeDur * FPS);
+   fxExplode.play();
 }
 
 function gameOver() {
@@ -232,7 +252,7 @@ function newShip() {
 function shootLaser() {
     // create the laser object
     if (ship.canShoot && ship.lasers.length < laserMax) {
-        ship.lasers.push({ // from the nose of the ship
+        ship.lasers.push({ // from the nose oerf the ship
             x: ship.x + 4 / 3 * ship.r * Math.cos(ship.a),
             y: ship.y - 4 / 3 * ship.r * Math.sin(ship.a),
             xv: laserSpeed * Math.cos(ship.a) / FPS,
@@ -240,16 +260,74 @@ function shootLaser() {
             dist: 0,
             explodeTime: 0
         });
+        fxLaser.play();
     }
 
     // prevent further shooting
     ship.canShoot = false;
 }
 
+function Music(srcLow, srcHigh) {
+    this.soundLow = new Audio(srcLow);
+    this.soundHigh = new Audio(srcHigh);
+    this.low = true;
+    this.tempo = 1.0; // seconds per beat
+    this.beatTime = 0; // frames left until next beat
+
+    this.play = function() {
+        if (musicOn) {
+        if (this.low) {
+            this.soundLow.play();
+        } else {
+            this.soundHigh.play();
+        }
+        this.low = !this.low;
+    }
+}
+
+    this.setAsteroidRatio = function(ratio) {
+        this.tempo = 1.0 - 0.75 * (1.0 - ratio);
+    }
+
+    this.tick = function() {
+        if (this.beatTime == 0) {
+            this.play();
+            this.beatTime = Math.ceil(this.tempo * FPS);
+        } else {
+            this.beatTime--;
+        }
+    }
+}
+
+function Sound(src, maxStreams = 1, vol = 1.0) {
+    this.streamNum = 0;
+    this.streams = [];
+    for (var i = 0; i < maxStreams; i++) {
+        this.streams.push(new Audio(src));
+        this.streams[i].volume = vol;
+    } 
+
+    this.play = function() {
+        if (soundOn) {
+        this.streamNum = (this.streamNum + 1) % maxStreams;
+        this.streams[this.streamNum].play();
+        }
+    }
+
+    this.stop = function() {
+        this.streams[this.streamNum].pause();
+        this.streams[this.streamNum].currentTime = 0;
+    }
+}
+
 
 function update() {
     var blinkOn = ship.blinkNum % 2 == 0;
     var exploding = ship.explodeTime > 0;
+
+    // tick the music
+    music.tick();
+
     // draw space
     ctx.fillStyle = 'black';
     ctx.fillRect(0, 0, canv.clientWidth, canv.height);
@@ -257,6 +335,7 @@ function update() {
     if (ship.thrusting && !ship.dead) {
         ship.thrust.x += shipThrust * Math.cos(ship.a) / FPS;
         ship.thrust.y -= shipThrust * Math.sin(ship.a) / FPS;
+        fxThrust.play();
 
         // draw the thruster
         if (!exploding && blinkOn) {
@@ -285,6 +364,7 @@ function update() {
         // apply friction
         ship.thrust.x -= friction * ship.thrust.x / FPS;
         ship.thrust.y -= friction * ship.thrust.y / FPS;
+        fxThrust.stop();
     }
 
 
