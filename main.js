@@ -22,8 +22,8 @@ const shipThrust = 5; // acceleration of ship in pixels per second per second
 const turnSpeed = 360; // in degrees per second
 const showBounding = false; // show or hide collision bounding
 const showCenterDot = false;
-const soundOn = false;
-const musicOn = false;
+const soundOn = true;
+const musicOn = true;
 const textFadeTime = 2.5 // text fade time in seconds
 const textSize = 35; // text font height in pixels
 
@@ -31,10 +31,10 @@ var canv = document.getElementById('game-canvas');
 var ctx = canv.getContext('2d');
 
 // set up sound effects
-var fxLaser = new Sound('sounds/laser.m4a', 5, 0.6);
-var fxHit = new Sound('sounds/hit.m4a', 5, 0.7);
-var fxExplode = new Sound('sounds/explode.m4a', 3, 0.8);
-var fxThrust = new Sound('sounds/thrust.m4a', 2, 0.3);
+var fxLaser = new Sound('sounds/laser.m4a', 5, 0.2);
+var fxHit = new Sound('sounds/hit.m4a', 5, 1);
+var fxExplode = new Sound('sounds/explode.m4a', 3, 1);
+var fxThrust = new Sound('sounds/thrust.m4a');
 
 // set up the music
 var music = new Music('sounds/music-low.m4a', 'sounds/music-high.m4a');
