@@ -2,11 +2,12 @@ html {
     background-color: black;
 }
 canvas {
-    outline: red 3px solid;
+    outline: red 1.8px solid;
     margin-left: auto;
     margin-right: auto;
     display: block;
     top: 1rem;
-    width: 600px;
+    width: 700px;
+    height: 600px;
     position: relative;
 }
