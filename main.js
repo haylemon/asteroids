@@ -1,25 +1,25 @@
 const FPS = 30;
 const friction = 0.8; // friction coefficient of space (0 = no friction, 1 = lots of friction)
 const gameLives = 3; // starting number of lives
-const laserDist = 0.6; // max distance laser can travel as fraction of screen width
+const laserDist = 0.7; // max distance laser can travel as fraction of screen width
 const laserExplodeDur = 0.1; // duration of the laser's explosion in seconds
 const laserMax = 10; // max number of lasers on the screen at once
-const laserSpeed = 500; // speed of lasers in pixels per second
+const laserSpeed = 400; // speed of lasers in pixels per second
 const asteroidJag = 0.4; // jaggedness of the asteroids (0 = none, 1 = lots)
 const asteroidPtsLrg = 20; // points scored for a larger asteroid
 const asteroidPtsMed = 50; // points scored for a medium asteroid
 const asteroidPtsSml = 100; // points scored for a smaller asteroid
 const asteroidNum = 1; // starting number of asteroids
 const asteroidSize = 100; // in pixels
-const asteroidSpeed = 50; // max speed in pixels per second
+const asteroidSpeed = 60; // max speed in pixels per second
 const asteroidVert = 10; // avg number of verticies on each asteroid
 const shipSize =  30; // in pixels
-const shipBlinkDur = 0.1; // duration of the ship's blink during invisibility in seconds
+const shipBlinkDur = 0.2; // duration of the ship's blink during invisibility in seconds
 const saveKeyScore = 'highscore'; // save key for the local storage of high score
 const shipExplodeDur = 0.3; // duration in seconds
 const shipInvisibilityDur = 3; // duration of ships invisibility in seconds
-const shipThrust = 5; // acceleration of ship in pixels per second per second
-const turnSpeed = 360; // in degrees per second
+const shipThrust = 4; // acceleration of ship in pixels per second per second
+const turnSpeed = 350; // in degrees per second
 const showBounding = false; // show or hide collision bounding
 const showCenterDot = false;
 const soundOn = true;
@@ -277,9 +277,9 @@ function Music(srcLow, srcHigh) {
     this.play = function() {
         if (musicOn) {
         if (this.low) {
-            this.soundLow.play();
-        } else {
             this.soundHigh.play();
+        } else {
+            this.soundLow.play();
         }
         this.low = !this.low;
     }
